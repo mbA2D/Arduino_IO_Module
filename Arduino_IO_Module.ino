@@ -104,7 +104,7 @@ void loop() {
     digitalWrite(channel_num, value_int);
   }
 
-  //INSTR:IO:SET:PWM:OUTP (@ch), VAL //VAL is 0-255
+  //INSTR:IO:SET:PWM:OUTP (@ch),VAL //VAL is 0-255
   else if (CMDIS(command, "INSTR:IO:SET:PWM:OUTP")){
     analogWrite(channel_num, value_int);
   }
@@ -119,6 +119,13 @@ void loop() {
   else if (CMDIS(command, "INSTR:IO:READ:DIG?")){
     Serial.println(digitalRead(channel_num));
     Serial.flush();
+  }
+  
+  //INSTR:IO:PULSE (@ch),val //val is boolean 0 or 1
+  else if (CMDIS(command, "INSTR:IO:PULSE")){
+    digitalWrite(channel_num, !value_int);//make sure pin is opposite to start
+	  digitalWrite(channel_num, value_int);//pulse pin
+	  digitalWrite(channel_num, !value_int);//return to start val
   }
   
   //INSTR:IO:SET:LED x VAL  //VAL is boolean 0 or 1
