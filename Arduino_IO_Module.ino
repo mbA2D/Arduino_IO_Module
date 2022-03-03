@@ -6,9 +6,10 @@ PURPOSE: This example implements some SCPI commands
         to control the Arduino's IO pins
 CHANGELOG:
 	Mar 11, 2021 - First commit
+  Mar 02, 2022 - Added servo commands
 */
 
-#include <A2D_DAQ.h>
+#include <Servo.h>
 
 #define MANUFACTURER  ("A2D Electronics")
 #define DESCRIPTION ("Arduino IO Module")
@@ -25,6 +26,10 @@ CHANGELOG:
 //Macro for finding commands - F to store string literal
 //in flash instead of memory
 #define CMDIS(i,c) (!strcmp_P(i, PSTR(c)))
+
+Servo s1, s2;
+uint8_t s1_ch = 0;
+uint8_t s2_ch = 0;
 
 //Function Prototypes:
 void parse_serial(char ser_buf[], char command[], uint8_t* channel_num, uint8_t* value_int);
@@ -47,7 +52,7 @@ void loop() {
   char command[SER_BUF_LEN];
   uint8_t chars_input = 0;
   uint8_t channel_num = 0;
-  uint8_t value_int = 0;
+  uint16_t value_int = 0;
   
   //if serial data is available
   if(Serial.available()){
@@ -132,9 +137,31 @@ void loop() {
   else if (CMDIS(command, "INSTR:IO:SET:LED")){
     digitalWrite(LED_PIN, value_int);
   }
+  
+  //CONF:SERVO (@ch) //setup a certain channel as a servo
+  else if (CMDIS(command, "CONF:SERVO")){
+    if (!s1.attached()){
+		  s1.attach(channel_num);
+		  s1_ch = channel_num;
+	  }
+	  else if (!s2.attached()){
+		  s2.attach(channel_num);
+		  s2_ch = channel_num;
+	  }
+  }
+  
+  //IO:SERVO:MICRO (@ch),val //VAL is 1000 to 2000
+  else if (CMDIS(command, "IO:SERVO:MICRO")){
+	  if (channel_num == s1_ch){
+		  s1.writeMicroseconds(value_int);
+	  }
+	  else if (channel_num == s2_ch){
+		  s2.writeMicroseconds(value_int);
+	  } 
+  }
 }
 
-void parse_serial(char ser_buf[], char command[], uint8_t *channel_num, uint8_t *value_int){
+void parse_serial(char ser_buf[], char command[], uint8_t *channel_num, uint16_t *value_int){
   //All SCPI commands are terminated with newline '/n'
   //but the Serial.readBytesUntil discards the terminator
   //so do we need to add one to use strcmp?
