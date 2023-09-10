@@ -15,7 +15,7 @@ CHANGELOG:
 #define DESCRIPTION ("Arduino IO Module")
 #define VERSION     ("V1.0.0")
 
-#define LED_PIN 13
+#define LED_PIN LED_BUILTIN
 
 //SERIAL DEFINES
 #define BAUDRATE    57600
